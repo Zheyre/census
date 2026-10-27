@@ -15,18 +15,6 @@ library(sf)
 
 ```{r}
 #| message: false
-income_tx <- get_acs(
-  geography = "county",
-  variables = "B19013_001",
-  state = "TX",
-  year = 2020,
-  geometry = TRUE,
-  progress_bar = FALSE
-)
-```
-
-```{r}
-#| message: false
 #| cache: true
 income_tx <- get_acs(
   geography = "county",
@@ -54,5 +42,43 @@ income_tx |>
     caption = "Source: U.S. Census Bureau via tidycensus"
   ) +
   theme_void()
+```
+
+```{r}
+#| message: false
+#| cache: true
+edu_state <- get_acs(
+  geography = "state",
+  variables = c(
+    "B15003_022",
+    "B15003_023",
+    "B15003_024",
+    "B15003_025"
+  ),
+  summary_var = "B15003_001",
+  year = 2020
+)
+```
+```{r}
+#| fig-height: 9
+edu_state |>
+filter(variable != "B15003_001") |>
+summarize(
+bachelors_plus = sum(estimate),
+total = first(summary_est),
+.by = NAME
+) |>
+mutate(pct_bachelors = 100 * bachelors_plus / total) |>
+ggplot(aes(x = pct_bachelors, y = reorder(NAME, pct_bachelors))) +
+geom_col(fill = "mediumpurple") +
+labs(
+title = "Adults with at Least a Bachelor's Degree, 2020",
+subtitle = "Share of adults 25 and older, by state",
+x = "Percent with a bachelor's degree or higher",
+y = NULL,
+caption = "Source: ACS 5-year estimates via tidycensus"
+) +
+theme_minimal() +
+theme(axis.text.y = element_text(size = 7))
 ```
 
