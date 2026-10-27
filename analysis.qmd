@@ -1,6 +1,58 @@
 ---
 title: "Analyzing US Census Data"
+author: "Zheyre Tolliver"
 format: html
-author: Zheyre Tolliver
+execute:
+  echo: false
 ---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(tidycensus)
+library(sf)
+```
+
+```{r}
+#| message: false
+income_tx <- get_acs(
+  geography = "county",
+  variables = "B19013_001",
+  state = "TX",
+  year = 2020,
+  geometry = TRUE,
+  progress_bar = FALSE
+)
+```
+
+```{r}
+#| message: false
+#| cache: true
+income_tx <- get_acs(
+  geography = "county",
+  variables = "B19013_001",
+  state = "TX",
+  year = 2020,
+  geometry = TRUE,
+  progress_bar = FALSE
+)
+```
+
+```{r}
+income_tx |>
+  ggplot(aes(fill = estimate)) +
+  geom_sf(color = "white", linewidth = 0.1) +
+  scale_fill_viridis_c(
+    option = "magma",
+    labels = scales::label_dollar(),
+    na.value = "gray80"
+  ) +
+  labs(
+    title = "Median Household Income by Texas County, 2020",
+    subtitle = "American Community Survey 5-year estimates (2016 to 2020)",
+    fill = "Median income",
+    caption = "Source: U.S. Census Bureau via tidycensus"
+  ) +
+  theme_void()
+```
 
